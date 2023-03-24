@@ -12,13 +12,13 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // Update is called once per frame
-    private void Update() {
+    private void Update() 
+        {
         float dirX = Input.GetAxisRaw("Horizontal");
-
         rb.velocity = new Vector2(dirX * 7f, rb.velocity.y);
 
         if (Input.GetButton("Jump") & GetComponent<Rigidbody2D>().velocity.y <= 0.01 & GetComponent<Rigidbody2D>().velocity.y >= -0.01) {
-            rb.velocity = new Vector3(rb.velocity.x, 14f);
+            rb.velocity = new Vector3(rb.velocity.x, 7f);
         }
      
     }
