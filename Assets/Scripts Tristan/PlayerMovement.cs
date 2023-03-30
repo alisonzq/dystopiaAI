@@ -7,14 +7,15 @@ public class PlayerMovement : MonoBehaviour {
     private BoxCollider2D coll;
     private SpriteRenderer sprite;
     private Animator anim;
-       
+
     [SerializeField] private LayerMask jumpableGround;
+    [SerializeField] private LayerMask Hazard;
 
     private float dirX = 0f;
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float jumpForce = 14f;
 
-    private enum MovementState { idle, running, jumping, falling }
+    private enum MovementState { idle, running, jumping, falling, dead }
 
     // Start is called before the first frame update
     private void Start() {
@@ -22,6 +23,8 @@ public class PlayerMovement : MonoBehaviour {
         coll = GetComponent<BoxCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+
+
     }
 
     // Update is called once per frame
@@ -33,27 +36,28 @@ public class PlayerMovement : MonoBehaviour {
             rb.velocity = new Vector3(rb.velocity.x, jumpForce);
         }
 
-        UpdateAnimationState();
-
+            UpdateAnimationState();
+       
     }
     private void UpdateAnimationState() {
         MovementState state;
 
-        if (dirX > 0f) {
-            state = MovementState.running;
-            sprite.flipX = false;
-        } else if (dirX < 0f) {
-            state = MovementState.running;
-            sprite.flipX = true;
-        } else {
-            state = MovementState.idle;
-        }
 
-        if (rb.velocity.y > .1f) {
-            state = MovementState.jumping;
-        } else if (rb.velocity.y < -.1f) {
-            state = MovementState.falling;
-        }
+            if (dirX > 0f) {
+                state = MovementState.running;
+                sprite.flipX = false;
+            } else if (dirX < 0f) {
+                state = MovementState.running;
+                sprite.flipX = true;
+            } else {
+                state = MovementState.idle;
+            }
+
+            if (rb.velocity.y > .1f) {
+                state = MovementState.jumping;
+            } else if (rb.velocity.y < -.1f) {
+                state = MovementState.falling;
+            }
 
         anim.SetInteger("state", (int)state);
     }
@@ -61,4 +65,6 @@ public class PlayerMovement : MonoBehaviour {
     private bool IsGrounded() {
         return Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, .1f, jumpableGround);
     }
+
+
 } 
