@@ -24,6 +24,8 @@ public class PlayerMovement : MonoBehaviour {
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
 
+        anim.SetTrigger("respawn");
+
 
     }
 
