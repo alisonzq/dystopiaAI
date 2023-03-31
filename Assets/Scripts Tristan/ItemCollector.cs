@@ -10,6 +10,7 @@ public class ItemCollector : MonoBehaviour
 
     [SerializeField] private Text bananasText;
 
+    [SerializeField] private AudioSource pickupSoundEffect;
 
     private void OnTriggerEnter2D(Collider2D collision) {
         if (collision.gameObject.CompareTag("Banana")) {
@@ -19,6 +20,8 @@ public class ItemCollector : MonoBehaviour
 
             collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
             Destroy(collision.gameObject.GetComponent<BoxCollider2D>());
+
+            pickupSoundEffect.Play();
 
         } else collision.gameObject.GetComponent<Animator>().SetBool("picked", false);
     }
