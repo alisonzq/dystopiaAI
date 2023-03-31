@@ -11,51 +11,67 @@ public class PlayerDeath : MonoBehaviour {
 
     [SerializeField] private AudioSource deathSoundEffect;
 
-    [SerializeField] private Text lifeText;
+    [SerializeField] private GameObject[] Heart;
+    private int currentHeartIndex;
 
     [SerializeField] private int life;
+
+    private GameObject checkpoint;
 
     // Start is called before the first frame update
     private void Start() {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
+        currentHeartIndex = (Heart.Length)-1;
     }
 
+    //Hazard collide
     private void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("Hazard")) {
-            life--;
-            lifeText.text = "" + life;
-            LoseLife();
-
-            
-        }
-        if(life == 0) {
-            Die();
+            if (currentHeartIndex != 0) {
+                LoseLife();
+                Destroy(Heart[currentHeartIndex]);
+                currentHeartIndex--;
+            } else if (currentHeartIndex == 0) {
+                Destroy(Heart[currentHeartIndex]);
+                Die();
+            }
+          
+         
         }
     }
 
-    private void Respawn() {
-        transform.position = new Vector3(-2.78f, 2.967f, 0f);
-        anim.SetTrigger("respawn");
-        rb.bodyType = RigidbodyType2D.Dynamic;
+    //Checkpoint set
+    private void OnTriggerEnter2D(Collider2D collision) {
+        if (collision.gameObject.CompareTag("CheckPoint") && life !=0) {
+            if (checkpoint != collision.gameObject) {
+                checkpoint = collision.gameObject;
+                collision.gameObject.GetComponent<Animator>().SetTrigger("deployCheckPoint");
+            }
+        }
     }
 
+   
 
+    //Dying
     private void LoseLife() {
         anim.SetTrigger("loseLife");
         rb.bodyType = RigidbodyType2D.Static;
         deathSoundEffect.Play();
-        
-       
     }
-
-
     private void Die() {
         anim.SetTrigger("death");
         rb.bodyType = RigidbodyType2D.Static;
         deathSoundEffect.Play();
     }
 
+
+    //Respawning
+    private void Respawn() {
+        transform.position = checkpoint.transform.position;
+        anim.SetTrigger("respawn");
+        rb.bodyType = RigidbodyType2D.Dynamic;
+    }
     private void RestartLevel() {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
