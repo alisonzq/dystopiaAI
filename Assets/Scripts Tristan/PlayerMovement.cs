@@ -14,6 +14,8 @@ public class PlayerMovement : MonoBehaviour {
     private float dirX = 0f;
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float jumpForce = 14f;
+    [SerializeField] private float gravity = 14f;
+    [SerializeField] private float longJump = 14f;
 
     private enum MovementState { idle, running, jumping, falling, dead }
 
@@ -37,12 +39,18 @@ public class PlayerMovement : MonoBehaviour {
         rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
 
         if (Input.GetButtonDown("Jump") && IsGrounded()) {
-            jumpSoundEffect.Play(); 
-            rb.velocity = new Vector3(rb.velocity.x, jumpForce);
+            jumpSoundEffect.Play();
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        } else if (Input.GetButton("Jump") && !IsGrounded() && rb.velocity.y > .1f) {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity/longJump);
+        } else if (!IsGrounded() && rb.velocity.y > .1f) {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity);
+        } else if (Input.GetButton("Jump") && !IsGrounded() && rb.velocity.y < -.1f) {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity / longJump);
+        } else if (rb.velocity.y < -.1f) {
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity);
         }
-
-            UpdateAnimationState();
-       
+        UpdateAnimationState();
     }
     private void UpdateAnimationState() {
         MovementState state;

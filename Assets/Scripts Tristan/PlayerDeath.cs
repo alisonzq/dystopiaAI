@@ -18,6 +18,8 @@ public class PlayerDeath : MonoBehaviour {
 
     private GameObject checkpoint;
 
+    private bool hit = false;
+
     // Start is called before the first frame update
     private void Start() {
         anim = GetComponent<Animator>();
@@ -27,17 +29,17 @@ public class PlayerDeath : MonoBehaviour {
 
     //Hazard collide
     private void OnCollisionEnter2D(Collision2D collision) {
-        if (collision.gameObject.CompareTag("Hazard")) {
+        if (collision.gameObject.CompareTag("Hazard") && !hit) {
             if (currentHeartIndex != 0) {
                 LoseLife();
                 Destroy(Heart[currentHeartIndex]);
                 currentHeartIndex--;
-            } else if (currentHeartIndex == 0) {
+            } else if (currentHeartIndex <= 0) {
                 Destroy(Heart[currentHeartIndex]);
                 Die();
             }
-          
-         
+            hit = !hit;
+
         }
     }
 
@@ -59,18 +61,19 @@ public class PlayerDeath : MonoBehaviour {
         rb.bodyType = RigidbodyType2D.Static;
         deathSoundEffect.Play();
     }
-    private void Die() {
-        anim.SetTrigger("death");
-        rb.bodyType = RigidbodyType2D.Static;
-        deathSoundEffect.Play();
-    }
-
-
-    //Respawning
     private void Respawn() {
         transform.position = checkpoint.transform.position;
         anim.SetTrigger("respawn");
         rb.bodyType = RigidbodyType2D.Dynamic;
+        hit = !hit;
+    }
+
+
+    //definitive death
+    private void Die() {
+        anim.SetTrigger("death");
+        rb.bodyType = RigidbodyType2D.Static;
+        deathSoundEffect.Play();
     }
     private void RestartLevel() {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
