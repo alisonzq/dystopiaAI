@@ -41,13 +41,11 @@ public class PlayerMovement : MonoBehaviour {
         if (Input.GetButtonDown("Jump") && IsGrounded()) {
             jumpSoundEffect.Play();
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
-        } else if (Input.GetButton("Jump") && !IsGrounded() && rb.velocity.y > .1f) {
+        } else if (Input.GetButton("Jump") && !IsGrounded() && rb.velocity.y > 1f) {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity/longJump);
         } else if (!IsGrounded() && rb.velocity.y > .1f) {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity);
-        } else if (Input.GetButton("Jump") && !IsGrounded() && rb.velocity.y < -.1f) {
-            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity / longJump);
-        } else if (rb.velocity.y < -.1f) {
+        }  else if (rb.velocity.y < -.1f) {
             rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y - gravity);
         }
         UpdateAnimationState();

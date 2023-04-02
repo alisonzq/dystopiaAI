@@ -9,6 +9,7 @@ TagManager:
   - Hazard
   - CheckPoint
   - Apple
+  - HealthPickup
   layers:
   - Default
   - TransparentFX

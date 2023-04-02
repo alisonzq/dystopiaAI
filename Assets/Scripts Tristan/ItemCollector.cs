@@ -15,7 +15,7 @@ public class ItemCollector : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision) {
         if (collision.gameObject.CompareTag("Banana")) {
 
-            fruits++;
+            fruits= fruits + 5;
             fruitsText.text = "" + fruits;
 
             collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
@@ -26,7 +26,7 @@ public class ItemCollector : MonoBehaviour
         }
         else if (collision.gameObject.CompareTag("Apple")) {
 
-            fruits = fruits + 5;
+            fruits = fruits + 1;
             fruitsText.text = "" + fruits;
 
             collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
