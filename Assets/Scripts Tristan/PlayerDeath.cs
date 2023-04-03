@@ -34,10 +34,10 @@ public class PlayerDeath : MonoBehaviour {
             hit = true;
             if (currentHeartIndex != 0) {
                 LoseLifeRespawn();
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 currentHeartIndex--;
             } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 Die();
             }
         } 
@@ -46,15 +46,15 @@ public class PlayerDeath : MonoBehaviour {
             hit2 = true;
             if (currentHeartIndex != 0) {
                 anim.SetTrigger("invincibility");
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 currentHeartIndex--;
             } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 Die();
             }
             //health gain collider
         } else if (collision.gameObject.CompareTag("HealthPickup")) {
-            Heart[currentHeartIndex + 1].GetComponent<SpriteRenderer>().enabled = true;
+            Heart[currentHeartIndex + 1].GetComponent<Animator>().SetTrigger("gainLife");
             currentHeartIndex++;
             Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
             collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
@@ -75,10 +75,10 @@ public class PlayerDeath : MonoBehaviour {
             hit = true;
             if (currentHeartIndex != 0) {
                 LoseLifeRespawn();
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 currentHeartIndex--;
             } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 Die();
             }
         } 
@@ -87,10 +87,10 @@ public class PlayerDeath : MonoBehaviour {
             hit2 = true;
             if (currentHeartIndex != 0) {
                 anim.SetTrigger("invincibility");
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 currentHeartIndex--;
             } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<SpriteRenderer>().enabled = false;
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 Die();
             }
         }
