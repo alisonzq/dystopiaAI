@@ -10,6 +10,7 @@ TagManager:
   - CheckPoint
   - Apple
   - HealthPickup
+  - GroundHazard
   layers:
   - Default
   - TransparentFX

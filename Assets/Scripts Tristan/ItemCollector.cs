@@ -15,26 +15,48 @@ public class ItemCollector : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision) {
         if (collision.gameObject.CompareTag("Banana")) {
 
-            fruits= fruits + 5;
+            fruits= fruits + 1;
             fruitsText.text = "" + fruits;
 
             collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
-            Destroy(collision.gameObject.GetComponent<BoxCollider2D>());
+            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
 
             pickupSoundEffect.Play();
 
         }
         else if (collision.gameObject.CompareTag("Apple")) {
 
-            fruits = fruits + 1;
+            fruits = fruits + 2;
             fruitsText.text = "" + fruits;
 
             collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
-            Destroy(collision.gameObject.GetComponent<BoxCollider2D>());
+            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
 
             pickupSoundEffect.Play();
 
         } else collision.gameObject.GetComponent<Animator>().SetBool("picked", false);
     }
+    private void OnCollisionEnter2D(Collision2D collision) {
+        if (collision.gameObject.CompareTag("Banana")) {
 
+            fruits = fruits + 1;
+            fruitsText.text = "" + fruits;
+
+            collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
+            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
+
+            pickupSoundEffect.Play();
+
+        } else if (collision.gameObject.CompareTag("Apple")) {
+
+            fruits = fruits + 2;
+            fruitsText.text = "" + fruits;
+
+            collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
+            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
+
+            pickupSoundEffect.Play();
+
+        } else collision.gameObject.GetComponent<Animator>().SetBool("picked", false);
+    }
 }
