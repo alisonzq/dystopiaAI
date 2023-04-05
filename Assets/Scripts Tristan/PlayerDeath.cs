@@ -21,7 +21,7 @@ public class PlayerDeath : MonoBehaviour {
     private bool hit2 = false; //to prevent multi-hit from hazards
 
     private bool groundHazardHit = false;
-    private bool hazardHit = false;
+    private bool hazardTouching = false;
 
     // Start is called before the first frame update
     private void Start() {
@@ -39,8 +39,17 @@ public class PlayerDeath : MonoBehaviour {
         } 
         //hazard collider
         else if (collision.gameObject.CompareTag("Hazard") && !hit2) {
+            hazardTouching = true;
             hit2 = true;
-            hazardHit = true;
+            if (currentHeartIndex != 0) {
+                anim.SetTrigger("invincibility");
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
+                currentHeartIndex--;
+
+            } else if (currentHeartIndex <= 0) {
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
+                Die();
+            }
             //health gain collider
         } else if (collision.gameObject.CompareTag("HealthPickup")) {
             Heart[currentHeartIndex + 1].GetComponent<Animator>().SetTrigger("gainLife");
@@ -58,7 +67,7 @@ public class PlayerDeath : MonoBehaviour {
         }
         //hazard collider
         else if (collision.gameObject.CompareTag("Hazard")) {
-            hazardHit = false;
+            hazardTouching = false;
         }
     }
 
@@ -79,7 +88,16 @@ public class PlayerDeath : MonoBehaviour {
         //hazard trigger
         else if (collision.gameObject.CompareTag("Hazard") && !hit2) {
             hit2 = true;
-            hazardHit = true;
+            hazardTouching = true;
+            if (currentHeartIndex != 0) {
+                anim.SetTrigger("invincibility");
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
+                currentHeartIndex--;
+
+            } else if (currentHeartIndex <= 0) {
+                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
+                Die();
+            }
         }
     }
 
@@ -91,7 +109,8 @@ public class PlayerDeath : MonoBehaviour {
         }
         //hazard trigger
         else if (collision.gameObject.CompareTag("Hazard")) {
-            hazardHit = false;
+            hazardTouching = false;
+           
         }
     }
     //Dying
@@ -122,9 +141,9 @@ public class PlayerDeath : MonoBehaviour {
     //removing invincibility
     private void AfterGetHit() {
         hit2 = false;
-        hazardHit;
-        anim.SetTrigger("hitable");
-        
+        if (hazardTouching == false) { 
+            anim.SetTrigger("hitable"); 
+        }
     }
 
     private void Update() {
@@ -140,8 +159,8 @@ public class PlayerDeath : MonoBehaviour {
             }
         }
 
-        if (hazardHit == true && hit2 == true) {
-            hit2 == false
+        if (hazardTouching == true && hit2 == false) {
+            hit2 = true;
             if (currentHeartIndex != 0) {
                 anim.SetTrigger("invincibility");
                 Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
