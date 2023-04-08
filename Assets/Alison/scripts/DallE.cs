@@ -8,8 +8,11 @@ namespace OpenAI
     public class DallE : MonoBehaviour
     {
         [SerializeField] private InputField inputField;
+        [SerializeField] private GameObject input;
+        [SerializeField] private GameObject buttonDeactivate;
         [SerializeField] private Button button;
         [SerializeField] private Image image;
+        [SerializeField] private GameObject imageActivate;
         [SerializeField] private GameObject loadingLabel;
 
         private OpenAIApi openai = new OpenAIApi();
@@ -21,6 +24,7 @@ namespace OpenAI
 
         private async void SendImageRequest()
         {
+            imageActivate.SetActive(true);
             image.sprite = null;
             button.enabled = false;
             inputField.enabled = false;
@@ -46,6 +50,8 @@ namespace OpenAI
                     texture.LoadImage(request.downloadHandler.data);
                     var sprite = Sprite.Create(texture, new Rect(0, 0, 256, 256), Vector2.zero, 1f);
                     image.sprite = sprite;
+                    input.SetActive(false);
+                    buttonDeactivate.SetActive(false);
                 }
             }
             else
