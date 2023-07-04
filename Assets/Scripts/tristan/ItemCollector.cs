@@ -34,7 +34,7 @@ public class ItemCollector : MonoBehaviour
 
             pickupSoundEffect.Play();
 
-        } else collision.gameObject.GetComponent<Animator>().SetBool("picked", false);
+        } 
     }
     private void OnCollisionEnter2D(Collision2D collision) {
         if (collision.gameObject.CompareTag("Banana")) {
@@ -57,6 +57,6 @@ public class ItemCollector : MonoBehaviour
 
             pickupSoundEffect.Play();
 
-        } else collision.gameObject.GetComponent<Animator>().SetBool("picked", false);
+        } 
     }
 }

@@ -2,13 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraController : MonoBehaviour
-{
+public class CameraController : MonoBehaviour {
     [SerializeField] private Transform player;
- 
+    [SerializeField] private float smoothing;
+    public Vector2 maxPosition;
+    public Vector2 minPosition;
 
-    private void Update()
+    void LateUpdate()
     {
-        transform.position = new Vector3(player.position.x, player.position.y, transform.position.z);
+        if(transform.position != player.position) {
+            Vector3 playerPosition = new Vector3(player.position.x, player.position.y, transform.position.z);
+            playerPosition.x = Mathf.Clamp(playerPosition.x, minPosition.x, maxPosition.x);
+            playerPosition.y = Mathf.Clamp(playerPosition.y, minPosition.y, maxPosition.y);
+            transform.position = Vector3.Lerp(transform.position, playerPosition, smoothing);
+        }
+        
     }
 }
