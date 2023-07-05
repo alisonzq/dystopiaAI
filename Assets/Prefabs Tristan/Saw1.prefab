@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 4187289770694533912}
   - component: {fileID: 4187289770694533913}
   - component: {fileID: 4187289770694534119}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Saw
   m_TagString: Hazard
   m_Icon: {fileID: 0}

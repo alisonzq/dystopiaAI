@@ -30,7 +30,11 @@ public class FinishLevel : MonoBehaviour {
                 StartCoroutine(placeNameCo());
             }
         }
+        else {
+            other.transform.position += playerChange;
+
             
+        }
     }
 
     private IEnumerator placeNameCo() {
