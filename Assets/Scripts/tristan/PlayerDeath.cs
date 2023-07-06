@@ -10,17 +10,20 @@ public class PlayerDeath : MonoBehaviour {
     private Animator anim;
 
     [SerializeField] private AudioSource deathSoundEffect;
+    [SerializeField] private AudioSource pickupSound;
 
     [SerializeField] private GameObject[] Heart;    //all the hearts
     private int currentHeartIndex;     //current life
     [SerializeField] private int life; //max life
 
     private GameObject checkpoint;
+    private GameObject healthPickup;
 
-    private bool hit = false; //to prevent multi-hit from ground hazards
-    private bool hit2 = false; //to prevent multi-hit from hazards
+    private bool respawning = false; //to prevent multi-hit from ground hazards
+    private bool invincible = false; //to prevent multi-hit from hazards
 
-    private bool groundHazardHit = false;
+    private bool destroyItem = false;
+    private bool groundHazardTouching = false;
     private bool hazardTouching = false;
 
     // Start is called before the first frame update
@@ -28,47 +31,6 @@ public class PlayerDeath : MonoBehaviour {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         currentHeartIndex = (Heart.Length) - 1;
-    }
-
-    //Colliders
-    private void OnCollisionEnter2D(Collision2D collision) {
-        //ground hazard collider
-        if (collision.gameObject.CompareTag("GroundHazard") && !hit) {
-            hit = true;
-            groundHazardHit = true;
-        } 
-        //hazard collider
-        else if (collision.gameObject.CompareTag("Hazard") && !hit2) {
-            hazardTouching = true;
-            hit2 = true;
-            if (currentHeartIndex != 0) {
-                anim.SetTrigger("invincibility");
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                currentHeartIndex--;
-
-            } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                Die();
-            }
-            //health gain collider
-        } else if (collision.gameObject.CompareTag("HealthPickup")) {
-            Heart[currentHeartIndex + 1].GetComponent<Animator>().SetTrigger("gainLife");
-            currentHeartIndex++;
-            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
-            collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
-        }
-    }
-
-    //Colliders exit
-    private void OnCollisionExit2D(Collision2D collision) {
-        //ground hazard collider
-        if (collision.gameObject.CompareTag("GroundHazard")) {
-            groundHazardHit = false;
-        }
-        //hazard collider
-        else if (collision.gameObject.CompareTag("Hazard")) {
-            hazardTouching = false;
-        }
     }
 
     //Triggers
@@ -80,24 +42,24 @@ public class PlayerDeath : MonoBehaviour {
                 collision.gameObject.GetComponent<Animator>().SetTrigger("deployCheckPoint");
             }
         }
-        //ground hazard trigger
-        else if (collision.gameObject.CompareTag("GroundHazard") && !hit) {
-            hit = true;
-            groundHazardHit = true;
+
+        //life pickup
+        if (collision.gameObject.CompareTag("HealthPickup") && currentHeartIndex+1 != life) {
+            collision.gameObject.GetComponent<Animator>().SetTrigger("picked");
+            healthPickup = collision.gameObject;
+            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
+            StartCoroutine(PickedHeart());
+        }
+
+     
+
+       //ground hazard trigger
+       else if (collision.gameObject.CompareTag("GroundHazard") && !respawning) {
+            groundHazardTouching = true;
         } 
         //hazard trigger
-        else if (collision.gameObject.CompareTag("Hazard") && !hit2) {
-            hit2 = true;
+        else if (collision.gameObject.CompareTag("Hazard") && !invincible) {
             hazardTouching = true;
-            if (currentHeartIndex != 0) {
-                anim.SetTrigger("invincibility");
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                currentHeartIndex--;
-
-            } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                Die();
-            }
         }
     }
 
@@ -105,7 +67,7 @@ public class PlayerDeath : MonoBehaviour {
     private void OnTriggerExit2D(Collider2D collision) {
         //ground hazard trigger
         if (collision.gameObject.CompareTag("GroundHazard")) {
-            groundHazardHit = false;
+            groundHazardTouching = false;
         }
         //hazard trigger
         else if (collision.gameObject.CompareTag("Hazard")) {
@@ -113,65 +75,87 @@ public class PlayerDeath : MonoBehaviour {
            
         }
     }
-    //Dying
-    private void LoseLifeRespawn() {
-        anim.SetTrigger("loseLife");
-        rb.bodyType = RigidbodyType2D.Static;
-        deathSoundEffect.Play();
-    }
-    private void Respawn() {
-        transform.position = checkpoint.transform.position;
-        anim.SetTrigger("respawn");
-        rb.bodyType = RigidbodyType2D.Dynamic;
-        hit = false;
-        hit2 = false;
-    }
 
 
     //definitive death
-    private void Die() {
+    private void DefinitiveDeath() {
         anim.SetTrigger("death");
         rb.bodyType = RigidbodyType2D.Static;
         deathSoundEffect.Play();
-    }
-    private void RestartLevel() {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
-
-    //removing invincibility
-    private void AfterGetHit() {
-        hit2 = false;
-        if (hazardTouching == false) { 
-            anim.SetTrigger("hitable"); 
-        }
+        StartCoroutine(RestartLevel());
     }
 
     private void Update() {
-        if (groundHazardHit == true) {
-            groundHazardHit = false;
+        if (destroyItem) {
+            healthPickup.gameObject.SetActive(false);
+            destroyItem = false;
+        }
+
+        if (groundHazardTouching == true && respawning == false) {
+            groundHazardTouching = false;
             if (currentHeartIndex != 0) {
-                LoseLifeRespawn();
                 Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 currentHeartIndex--;
+                Die();
             } else if (currentHeartIndex <= 0) {
                 Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                Die();
+                DefinitiveDeath();
             }
         }
 
-        if (hazardTouching == true && hit2 == false) {
-            hit2 = true;
+        if (hazardTouching == true && invincible == false) {
             if (currentHeartIndex != 0) {
-                anim.SetTrigger("invincibility");
                 Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 currentHeartIndex--;
-
+                StartCoroutine(invincibilityFrames());
             } else if (currentHeartIndex <= 0) {
                 Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                Die();
+                DefinitiveDeath();
             }
         }
 
     }
 
+    private IEnumerator invincibilityFrames() {
+        anim.SetTrigger("invincibility");
+        invincible = true;
+        yield return new WaitForSeconds(2f);
+        invincible = false;
+        anim.SetTrigger("hitable");
+    }
+
+    private void Die() {
+        anim.SetTrigger("loseLife");
+        rb.bodyType = RigidbodyType2D.Static;
+        deathSoundEffect.Play();
+        StartCoroutine(Respawn());
+    }
+
+    private IEnumerator Respawn() {
+        respawning = true;
+        yield return new WaitForSeconds(0.4f);
+        transform.position = checkpoint.transform.position; 
+        anim.SetTrigger("respawn");
+        rb.bodyType = RigidbodyType2D.Dynamic;
+        respawning = false;
+        anim.SetTrigger("hitable");
+    }
+
+    private IEnumerator RestartLevel() {
+        respawning = true;
+        yield return new WaitForSeconds(1f);
+        anim.SetTrigger("respawn");
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        respawning = false;
+        anim.SetTrigger("hitable");
+    }
+
+    private IEnumerator PickedHeart() {
+                    Heart[currentHeartIndex+1].GetComponent<Animator>().SetTrigger("gainLife");
+            pickupSound.Play();
+            currentHeartIndex++;
+        yield return new WaitForSeconds(1f);
+        destroyItem = true;
+    }
+    
 }

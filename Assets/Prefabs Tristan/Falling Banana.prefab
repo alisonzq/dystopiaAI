@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8413414794631073834}
   - component: {fileID: 4901963701276159616}
   - component: {fileID: 7761737258233785461}
+  - component: {fileID: 1518840344080073363}
   m_Layer: 6
   m_Name: Falling Banana
   m_TagString: Banana
@@ -143,6 +144,22 @@ CircleCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0.05361557}
+  m_Offset: {x: 0, y: 0.07543373}
   serializedVersion: 2
-  m_Radius: 0.4102249
+  m_Radius: 0.34477043
+--- !u!58 &1518840344080073363
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8413414794631073832}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.0054545403, y: 0.06545496}
+  serializedVersion: 2
+  m_Radius: 0.41636133
