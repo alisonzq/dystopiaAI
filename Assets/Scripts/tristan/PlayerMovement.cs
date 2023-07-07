@@ -17,7 +17,7 @@ public class PlayerMovement : MonoBehaviour {
     [SerializeField] private float gravity = 14f;
     [SerializeField] private float longJump = 14f;
 
-    private enum MovementState { idle, running, jumping, falling, dead }
+    private enum MovementState { idle, running, jumping, falling, dead, idleInvincible, runningInvincible, jumpingInvincible, fallingInvincible}
 
     [SerializeField] private AudioSource jumpSoundEffect; 
 
@@ -29,7 +29,6 @@ public class PlayerMovement : MonoBehaviour {
         anim = GetComponent<Animator>();
 
         anim.SetTrigger("respawn");
-
 
     }
 
@@ -50,9 +49,9 @@ public class PlayerMovement : MonoBehaviour {
         }
         UpdateAnimationState();
     }
+
     private void UpdateAnimationState() {
         MovementState state;
-
 
             if (dirX > 0f) {
                 state = MovementState.running;
@@ -69,6 +68,9 @@ public class PlayerMovement : MonoBehaviour {
             } else if (rb.velocity.y < -.1f) {
                 state = MovementState.falling;
             }
+        
+        
+    
 
         anim.SetInteger("state", (int)state);
     }
@@ -76,6 +78,5 @@ public class PlayerMovement : MonoBehaviour {
     private bool IsGrounded() {
         return Physics2D.BoxCast(coll.bounds.center, coll.bounds.size, 0f, Vector2.down, .1f, jumpableGround);
     }
-
 
 } 

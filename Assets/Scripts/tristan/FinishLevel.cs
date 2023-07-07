@@ -8,6 +8,8 @@ public class FinishLevel : MonoBehaviour {
 
     [SerializeField] private Vector2 cameraChange;
     [SerializeField] private Vector3 playerChange;
+    [SerializeField] private Vector2 cameraBoundsEnlargementMax;
+    [SerializeField] private Vector2 cameraBoundsEnlargementMin;
     private CameraController cam;
     private AudioSource finishSound;
     public bool needText;
@@ -24,7 +26,9 @@ public class FinishLevel : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D other) {
         if (other.CompareTag("Player")) {
             cam.minPosition += cameraChange;
+            cam.minPosition += cameraBoundsEnlargementMin;
             cam.maxPosition += cameraChange;
+            cam.maxPosition += cameraBoundsEnlargementMax;
             other.transform.position += playerChange;
             if(needText) {
                 StartCoroutine(placeNameCo());

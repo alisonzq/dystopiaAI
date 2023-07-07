@@ -10,7 +10,8 @@ public class PlayerDeath : MonoBehaviour {
     private Animator anim;
 
     [SerializeField] private AudioSource deathSoundEffect;
-    [SerializeField] private AudioSource pickupSound;
+    [SerializeField] private AudioSource pickupSoundEffect;
+    [SerializeField] private AudioSource sawSoundEffect;
 
     [SerializeField] private GameObject[] Heart;    //all the hearts
     private int currentHeartIndex;     //current life
@@ -20,9 +21,8 @@ public class PlayerDeath : MonoBehaviour {
     private GameObject healthPickup;
 
     private bool respawning = false; //to prevent multi-hit from ground hazards
-    private bool invincible = false; //to prevent multi-hit from hazards
-
-    private bool destroyItem = false;
+    public bool invincible = false; //to prevent multi-hit from hazards
+    
     private bool groundHazardTouching = false;
     private bool hazardTouching = false;
 
@@ -45,10 +45,20 @@ public class PlayerDeath : MonoBehaviour {
 
         //life pickup
         if (collision.gameObject.CompareTag("HealthPickup") && currentHeartIndex+1 != life) {
-            collision.gameObject.GetComponent<Animator>().SetTrigger("picked");
+
             healthPickup = collision.gameObject;
-            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
-            StartCoroutine(PickedHeart());
+
+            healthPickup.GetComponent<Animator>().SetTrigger("picked");
+
+            healthPickup.GetComponent<CircleCollider2D>().enabled = false;
+            healthPickup.GetComponent<CapsuleCollider2D>().enabled = false;
+
+            healthPickup.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+
+            Heart[currentHeartIndex + 1].GetComponent<Animator>().SetTrigger("gainLife");
+            currentHeartIndex++;
+
+            pickupSoundEffect.Play();
         }
 
      
@@ -58,7 +68,7 @@ public class PlayerDeath : MonoBehaviour {
             groundHazardTouching = true;
         } 
         //hazard trigger
-        else if (collision.gameObject.CompareTag("Hazard") && !invincible) {
+        else if (collision.gameObject.CompareTag("Hazard")) {
             hazardTouching = true;
         }
     }
@@ -72,7 +82,6 @@ public class PlayerDeath : MonoBehaviour {
         //hazard trigger
         else if (collision.gameObject.CompareTag("Hazard")) {
             hazardTouching = false;
-           
         }
     }
 
@@ -86,11 +95,7 @@ public class PlayerDeath : MonoBehaviour {
     }
 
     private void Update() {
-        if (destroyItem) {
-            healthPickup.gameObject.SetActive(false);
-            destroyItem = false;
-        }
-
+      
         if (groundHazardTouching == true && respawning == false) {
             groundHazardTouching = false;
             if (currentHeartIndex != 0) {
@@ -107,6 +112,7 @@ public class PlayerDeath : MonoBehaviour {
             if (currentHeartIndex != 0) {
                 Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
                 currentHeartIndex--;
+                sawSoundEffect.Play();
                 StartCoroutine(invincibilityFrames());
             } else if (currentHeartIndex <= 0) {
                 Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
@@ -119,7 +125,7 @@ public class PlayerDeath : MonoBehaviour {
     private IEnumerator invincibilityFrames() {
         anim.SetTrigger("invincibility");
         invincible = true;
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(5f);
         invincible = false;
         anim.SetTrigger("hitable");
     }
@@ -150,12 +156,6 @@ public class PlayerDeath : MonoBehaviour {
         anim.SetTrigger("hitable");
     }
 
-    private IEnumerator PickedHeart() {
-                    Heart[currentHeartIndex+1].GetComponent<Animator>().SetTrigger("gainLife");
-            pickupSound.Play();
-            currentHeartIndex++;
-        yield return new WaitForSeconds(1f);
-        destroyItem = true;
-    }
+   
     
 }

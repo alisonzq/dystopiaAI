@@ -8,51 +8,39 @@ public class ItemCollector : MonoBehaviour
 
     private int fruits = 0;
 
-    private GameObject pickup;
+    public string[] fruitType;
+    public int[] fruitValue;
+    private int numberOfFruitTypes;
+    private int fruitTypeIndex;
 
-    private bool destroyPickup = false;
+    private GameObject pickup;
 
     [SerializeField] private Text fruitsText;
 
     public AudioSource pickupSoundEffect;
 
+    private void Start() {
+         numberOfFruitTypes = (fruitType.Length);
+    }
+
     private void OnTriggerEnter2D(Collider2D collision) {
-   
-        if (collision.gameObject.CompareTag("Banana")) {
-            pickup = collision.gameObject;
-            destroyPickup = true;
-            fruits= fruits + 1;
-            fruitsText.text = "" + fruits;
 
-            collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
-            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
+        for (int i = 0; i < numberOfFruitTypes; i++) {
+            if (collision.gameObject.CompareTag(fruitType[i])) {
+                pickup = collision.gameObject;
+                fruits = fruits + fruitValue[i];
+                fruitsText.text = "" + fruits;
 
-            pickupSoundEffect.Play();
-            StartCoroutine(DestroyPickup());
+                pickupSoundEffect.Play();
+
+                pickup.GetComponent<Animator>().SetBool("picked", true);
+                pickup.GetComponent<CircleCollider2D>().enabled = false;
+                pickup.GetComponent<CapsuleCollider2D>().enabled = false;
+
+                pickup.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+            }
         }
-        else if (collision.gameObject.CompareTag("Apple")) {
-            pickup = collision.gameObject;
-            fruits = fruits + 2;
-            fruitsText.text = "" + fruits;
 
-            collision.gameObject.GetComponent<Animator>().SetBool("picked", true);
-            Destroy(collision.gameObject.GetComponent<CircleCollider2D>());
-
-            pickupSoundEffect.Play();
-            StartCoroutine(DestroyPickup());
-        } 
     }
    
-
-    private void Update() {
-        if (destroyPickup) {
-            pickup.gameObject.SetActive(false);
-            destroyPickup = false;
-        }
-    }
-
-    private IEnumerator DestroyPickup() {
-        yield return new WaitForSeconds(1f);
-        destroyPickup = true;
-    }
 }
