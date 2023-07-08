@@ -12,6 +12,7 @@ TagManager:
   - HealthPickup
   - GroundHazard
   - Kiwi
+  - Wood
   layers:
   - Default
   - TransparentFX

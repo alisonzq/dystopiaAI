@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6721829003916492775}
   m_Layer: 0
   m_Name: Kiwi
-  m_TagString: Apple
+  m_TagString: Kiwi
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

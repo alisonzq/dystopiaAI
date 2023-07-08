@@ -13,28 +13,39 @@ public class PlayerDeath : MonoBehaviour {
     [SerializeField] private AudioSource pickupSoundEffect;
     [SerializeField] private AudioSource sawSoundEffect;
 
-    [SerializeField] private GameObject[] Heart;    //all the hearts
-    private int currentHeartIndex;     //current life
-    [SerializeField] private int life; //max life
-
+    [SerializeField] private GameObject lifeBar;    //lifebar
+    private float lifeBarMaxWidth;    //lifebar maximum size
+    private float lifeBarMaxScale;
+    [SerializeField] private int maxLife; //max life
+    [SerializeField] private int invincibilityTime;
+    private int life;
+    
     private GameObject checkpoint;
     private GameObject healthPickup;
+    private SpriteRenderer sprite;
 
     private bool respawning = false; //to prevent multi-hit from ground hazards
-    public bool invincible = false; //to prevent multi-hit from hazards
+    private bool invincible = false; //to prevent multi-hit from hazards
     
     private bool groundHazardTouching = false;
     private bool hazardTouching = false;
+    private bool flashing = true; //flashing on invincibility 
+
 
     // Start is called before the first frame update
     private void Start() {
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        currentHeartIndex = (Heart.Length) - 1;
+        sprite = gameObject.GetComponent<SpriteRenderer>();
+        life = maxLife;
+        lifeBarMaxWidth = lifeBar.GetComponent<RectTransform>().rect.width;
+        lifeBarMaxScale = lifeBar.transform.localScale.x;
     }
 
     //Triggers
     private void OnTriggerEnter2D(Collider2D collision) {
+
+
         //checkpoint
         if (collision.gameObject.CompareTag("CheckPoint") && life != 0) {
             if (checkpoint != collision.gameObject) {
@@ -44,20 +55,19 @@ public class PlayerDeath : MonoBehaviour {
         }
 
         //life pickup
-        if (collision.gameObject.CompareTag("HealthPickup") && currentHeartIndex+1 != life) {
-
+        if (collision.gameObject.CompareTag("HealthPickup") && life != maxLife) {
             healthPickup = collision.gameObject;
 
-            healthPickup.GetComponent<Animator>().SetTrigger("picked");
+            //increase
+            lifeBar.GetComponent<RectTransform>().anchoredPosition = lifeBar.GetComponent<RectTransform>().anchoredPosition + new Vector2(lifeBarMaxWidth / (maxLife), 0f);
+            lifeBar.transform.localScale = lifeBar.transform.localScale + new Vector3(lifeBarMaxScale / (maxLife), 0f, 0f);
+            life++;
 
+            //physical dissapearance
+            healthPickup.GetComponent<Animator>().SetTrigger("picked");
             healthPickup.GetComponent<CircleCollider2D>().enabled = false;
             healthPickup.GetComponent<CapsuleCollider2D>().enabled = false;
-
             healthPickup.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
-
-            Heart[currentHeartIndex + 1].GetComponent<Animator>().SetTrigger("gainLife");
-            currentHeartIndex++;
-
             pickupSoundEffect.Play();
         }
 
@@ -91,31 +101,34 @@ public class PlayerDeath : MonoBehaviour {
         anim.SetTrigger("death");
         rb.bodyType = RigidbodyType2D.Static;
         deathSoundEffect.Play();
-        StartCoroutine(RestartLevel());
+        StartCoroutine(DeathScreen());
     }
 
     private void Update() {
-      
+
+  
+
         if (groundHazardTouching == true && respawning == false) {
             groundHazardTouching = false;
-            if (currentHeartIndex != 0) {
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                currentHeartIndex--;
+            lifeBar.GetComponent<RectTransform>().anchoredPosition = lifeBar.GetComponent<RectTransform>().anchoredPosition - new Vector2(lifeBarMaxWidth / (maxLife), 0f);
+            lifeBar.transform.localScale = lifeBar.transform.localScale - new Vector3(lifeBarMaxScale / (maxLife), 0f, 0f);
+            if (life > 1) {
+                life--;
                 Die();
-            } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
+            } else if (life <= 1) {
                 DefinitiveDeath();
             }
         }
 
         if (hazardTouching == true && invincible == false) {
-            if (currentHeartIndex != 0) {
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
-                currentHeartIndex--;
+            lifeBar.GetComponent<RectTransform>().anchoredPosition = lifeBar.GetComponent<RectTransform>().anchoredPosition - new Vector2(lifeBarMaxWidth / (maxLife), 0f);
+            lifeBar.transform.localScale = lifeBar.transform.localScale - new Vector3(lifeBarMaxScale / (maxLife), 0f, 0f);
+            if (life > 1) {
+                life--;
                 sawSoundEffect.Play();
                 StartCoroutine(invincibilityFrames());
-            } else if (currentHeartIndex <= 0) {
-                Heart[currentHeartIndex].GetComponent<Animator>().SetTrigger("loseLife");
+                Debug.Log("" + life);
+            } else if (life <= 1) {
                 DefinitiveDeath();
             }
         }
@@ -123,11 +136,24 @@ public class PlayerDeath : MonoBehaviour {
     }
 
     private IEnumerator invincibilityFrames() {
-        anim.SetTrigger("invincibility");
         invincible = true;
-        yield return new WaitForSeconds(5f);
+        for (int f = 0; f < invincibilityTime; f++) {
+            if (flashing == true) {
+                for (int i = 0; i < 10; i++) {
+                    sprite.color = sprite.color - new Color(0f, 0f, 0f, 0.1f);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                flashing = false;
+            } else {
+                for (int i = 0; i < 10; i++) {
+                    sprite.color = sprite.color + new Color(0f, 0f, 0f, 0.1f);
+                    yield return new WaitForSeconds(0.1f);
+                }
+                flashing = true;
+            }
+        }
+       
         invincible = false;
-        anim.SetTrigger("hitable");
     }
 
     private void Die() {
@@ -147,15 +173,12 @@ public class PlayerDeath : MonoBehaviour {
         anim.SetTrigger("hitable");
     }
 
-    private IEnumerator RestartLevel() {
-        respawning = true;
+    private IEnumerator DeathScreen() {
+
         yield return new WaitForSeconds(1f);
-        anim.SetTrigger("respawn");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        respawning = false;
-        anim.SetTrigger("hitable");
+        SceneManager.LoadScene(3);
+
     }
 
-   
-    
+
 }

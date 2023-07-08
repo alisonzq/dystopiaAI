@@ -6,38 +6,48 @@ using UnityEngine.UI;
 public class ItemCollector : MonoBehaviour
 {
 
-    private int fruits = 0;
+    public string[] pickupTag; //tags of each pickup to run for all tags present
+    public int[] pickupValue; //amount of the type the tagged pickup gives
+    public int[] pickupType; //type of pickup for text showing
+    public int[] pickupTypeAmount; //amount of the type the player has
+    private int numberOfPickupTags; //to for loop for all tags
+    private int lastTagIndex;
+    public Text[] pickupText; //text shown for a type
 
-    public string[] fruitType;
-    public int[] fruitValue;
-    private int numberOfFruitTypes;
-    private int fruitTypeIndex;
-
-    private GameObject pickup;
-
-    [SerializeField] private Text fruitsText;
+    private GameObject pickup; //the picked item
 
     public AudioSource pickupSoundEffect;
 
     private void Start() {
-         numberOfFruitTypes = (fruitType.Length);
+         numberOfPickupTags = (pickupTag.Length);
     }
 
     private void OnTriggerEnter2D(Collider2D collision) {
+        
+        for (int tagIndex = 0; tagIndex < numberOfPickupTags; tagIndex++) {
 
-        for (int i = 0; i < numberOfFruitTypes; i++) {
-            if (collision.gameObject.CompareTag(fruitType[i])) {
+            if (collision.gameObject.CompareTag(pickupTag[tagIndex])) {
                 pickup = collision.gameObject;
-                fruits = fruits + fruitValue[i];
-                fruitsText.text = "" + fruits;
 
+                //physical dissapearance
                 pickupSoundEffect.Play();
-
                 pickup.GetComponent<Animator>().SetBool("picked", true);
                 pickup.GetComponent<CircleCollider2D>().enabled = false;
-                pickup.GetComponent<CapsuleCollider2D>().enabled = false;
 
-                pickup.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+                
+                if (pickup.GetComponent<CapsuleCollider2D>() != null) { 
+                    pickup.GetComponent<CapsuleCollider2D>().enabled = false;
+                }
+                if (pickup.GetComponent<Rigidbody2D>() != null) { 
+                    pickup.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+                }
+
+                //text number increase
+                pickupTypeAmount[pickupType[tagIndex]] = pickupTypeAmount[pickupType[tagIndex]] + pickupValue[tagIndex]; //increase by value       
+                pickupText[pickupType[tagIndex]].text = "" + pickupTypeAmount[pickupType[tagIndex]]; //show by text on screen
+
+                lastTagIndex = tagIndex;
+
             }
         }
 
