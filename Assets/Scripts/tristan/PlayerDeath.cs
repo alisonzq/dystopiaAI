@@ -16,8 +16,10 @@ public class PlayerDeath : MonoBehaviour {
     [SerializeField] private GameObject lifeBar;    //lifebar
     private float lifeBarMaxWidth;    //lifebar maximum size
     private float lifeBarMaxScale;
+    private float lifeBarMaxPosition;
     [SerializeField] private int maxLife; //max life
-    [SerializeField] private int invincibilityTime;
+    [SerializeField] private float invincibilityTime;
+    [SerializeField] private int numberOfFlashes;
     private int life;
     
     private GameObject checkpoint;
@@ -29,8 +31,12 @@ public class PlayerDeath : MonoBehaviour {
     
     private bool groundHazardTouching = false;
     private bool hazardTouching = false;
-    private bool flashing = true; //flashing on invincibility 
 
+    public Text[] consumables;
+    public int[] consumablesValue;
+    private int consumablesLength;
+
+    private string lastLoadedScene;
 
     // Start is called before the first frame update
     private void Start() {
@@ -59,9 +65,10 @@ public class PlayerDeath : MonoBehaviour {
             healthPickup = collision.gameObject;
 
             //increase
+            life++;
             lifeBar.GetComponent<RectTransform>().anchoredPosition = lifeBar.GetComponent<RectTransform>().anchoredPosition + new Vector2(lifeBarMaxWidth / (maxLife), 0f);
             lifeBar.transform.localScale = lifeBar.transform.localScale + new Vector3(lifeBarMaxScale / (maxLife), 0f, 0f);
-            life++;
+       
 
             //physical dissapearance
             healthPickup.GetComponent<Animator>().SetTrigger("picked");
@@ -105,8 +112,28 @@ public class PlayerDeath : MonoBehaviour {
     }
 
     private void Update() {
+        //eating consumables
+        if (Input.GetKeyDown(KeyCode.H)) {
+            for (int consumablesIndex = 0; consumablesIndex < consumablesLength+1; consumablesIndex++) {
+                if (int.Parse(consumables[consumablesIndex].text) > 0 && life < maxLife + 1 - consumablesValue[consumablesIndex]) {
+                    lifeBar.GetComponent<RectTransform>().anchoredPosition = lifeBar.GetComponent<RectTransform>().anchoredPosition + consumablesValue[consumablesIndex]*(new Vector2(lifeBarMaxWidth / (maxLife), 0f));
+                    lifeBar.transform.localScale = lifeBar.transform.localScale + consumablesValue[consumablesIndex] * (new Vector3(lifeBarMaxScale / (maxLife), 0f, 0f));
+                    life = life + consumablesValue[consumablesIndex];
+                    Debug.Log("Gus");
+                    consumables[consumablesIndex].text = "" + (int.Parse(consumables[consumablesIndex].text) - 1);
+                } else if (int.Parse(consumables[consumablesIndex].text) > 0 && life == maxLife) {
+                        
+                } else if (int.Parse(consumables[consumablesIndex].text) > 0 && life >= maxLife + 1 - consumablesValue[consumablesIndex]) {
+                    int ammountToHeal = maxLife - life;
+                    lifeBar.GetComponent<RectTransform>().anchoredPosition = lifeBar.GetComponent<RectTransform>().anchoredPosition + ammountToHeal * (new Vector2(lifeBarMaxWidth / (maxLife), 0f));
+                    lifeBar.transform.localScale = lifeBar.transform.localScale + ammountToHeal * (new Vector3(lifeBarMaxScale / (maxLife), 0f, 0f));
+                    life = maxLife;
+                    Debug.Log("sus");
+                    consumables[consumablesIndex].text = "" + (int.Parse(consumables[consumablesIndex].text) - 1);
+                }
 
-  
+            }
+        }
 
         if (groundHazardTouching == true && respawning == false) {
             groundHazardTouching = false;
@@ -128,6 +155,7 @@ public class PlayerDeath : MonoBehaviour {
                 sawSoundEffect.Play();
                 StartCoroutine(invincibilityFrames());
                 Debug.Log("" + life);
+
             } else if (life <= 1) {
                 DefinitiveDeath();
             }
@@ -137,21 +165,21 @@ public class PlayerDeath : MonoBehaviour {
 
     private IEnumerator invincibilityFrames() {
         invincible = true;
-        for (int f = 0; f < invincibilityTime; f++) {
-            if (flashing == true) {
-                for (int i = 0; i < 10; i++) {
-                    sprite.color = sprite.color - new Color(0f, 0f, 0f, 0.1f);
-                    yield return new WaitForSeconds(0.1f);
-                }
-                flashing = false;
-            } else {
-                for (int i = 0; i < 10; i++) {
-                    sprite.color = sprite.color + new Color(0f, 0f, 0f, 0.1f);
-                    yield return new WaitForSeconds(0.1f);
-                }
-                flashing = true;
+        for (int f = 0; f < numberOfFlashes; f++) {
+
+            for (int i = 0; i < 10; i++) {
+                sprite.color = sprite.color - new Color(0f, 0f, 0f, 0.1f);
+                yield return new WaitForSeconds(0.0001f);
             }
+
+
+            for (int l = 0; l < 10; l++) {
+                sprite.color = sprite.color + new Color(0f, 0f, 0f, 0.1f);
+                yield return new WaitForSeconds(0.0001f);
+            }
+
         }
+        
        
         invincible = false;
     }
@@ -162,6 +190,7 @@ public class PlayerDeath : MonoBehaviour {
         deathSoundEffect.Play();
         StartCoroutine(Respawn());
     }
+
 
     private IEnumerator Respawn() {
         respawning = true;
@@ -175,7 +204,7 @@ public class PlayerDeath : MonoBehaviour {
 
     private IEnumerator DeathScreen() {
 
-        yield return new WaitForSeconds(1f);
+    yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(3);
 
     }

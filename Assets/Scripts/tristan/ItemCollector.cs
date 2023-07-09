@@ -11,8 +11,8 @@ public class ItemCollector : MonoBehaviour
     public int[] pickupType; //type of pickup for text showing
     public int[] pickupTypeAmount; //amount of the type the player has
     private int numberOfPickupTags; //to for loop for all tags
-    private int lastTagIndex;
     public Text[] pickupText; //text shown for a type
+    public Text[] inventoryPickupText;
 
     private GameObject pickup; //the picked item
 
@@ -33,8 +33,6 @@ public class ItemCollector : MonoBehaviour
                 pickupSoundEffect.Play();
                 pickup.GetComponent<Animator>().SetBool("picked", true);
                 pickup.GetComponent<CircleCollider2D>().enabled = false;
-
-                
                 if (pickup.GetComponent<CapsuleCollider2D>() != null) { 
                     pickup.GetComponent<CapsuleCollider2D>().enabled = false;
                 }
@@ -43,11 +41,14 @@ public class ItemCollector : MonoBehaviour
                 }
 
                 //text number increase
+
+
+                inventoryPickupText[pickupType[tagIndex]] = pickupText[pickupType[tagIndex]];
+                pickupText[pickupType[tagIndex]] = inventoryPickupText[pickupType[tagIndex]];
+                pickupTypeAmount[pickupType[tagIndex]] = int.Parse(inventoryPickupText[pickupType[tagIndex]].text);
+
                 pickupTypeAmount[pickupType[tagIndex]] = pickupTypeAmount[pickupType[tagIndex]] + pickupValue[tagIndex]; //increase by value       
                 pickupText[pickupType[tagIndex]].text = "" + pickupTypeAmount[pickupType[tagIndex]]; //show by text on screen
-
-                lastTagIndex = tagIndex;
-
             }
         }
 

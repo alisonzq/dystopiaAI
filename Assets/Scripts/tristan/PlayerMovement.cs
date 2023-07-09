@@ -10,6 +10,8 @@ public class PlayerMovement : MonoBehaviour {
 
     [SerializeField] private LayerMask jumpableGround;
     [SerializeField] private LayerMask Hazard;
+    public GameObject[] objectToKeep;
+    private int objectToKeepLength;
 
     private float dirX = 0f;
     [SerializeField] private float moveSpeed = 7f;
@@ -27,8 +29,12 @@ public class PlayerMovement : MonoBehaviour {
         coll = GetComponent<BoxCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
+        objectToKeepLength = objectToKeep.Length;
 
         anim.SetTrigger("respawn");
+        for (int aa = 0; aa < objectToKeepLength; aa++) {
+            DontDestroyOnLoad(objectToKeep[aa]);
+        }
 
     }
 
