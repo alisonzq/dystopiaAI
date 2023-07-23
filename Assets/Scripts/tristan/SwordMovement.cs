@@ -13,7 +13,8 @@ public class SwordMovement : MonoBehaviour {
     public GameObject sword;
     public GameObject swordReverse;
     private int state;
-    private bool isFlipped = false;
+    private bool isFlipped;
+
   
 
     // Start is called before the first frame update
@@ -24,9 +25,7 @@ public class SwordMovement : MonoBehaviour {
         swordAnim1 = sword.GetComponent<Animator>();
         swordAnim2 = swordReverse.GetComponent<Animator>();
 
-        anim = GetComponent<Animator>();
-
-       
+      
     }
 
     // Update is called once per frame
@@ -34,23 +33,25 @@ public class SwordMovement : MonoBehaviour {
 
         isFlipped = GetComponent<PlayerMovement>().flipped;
 
-        state = anim.GetInteger("state");
-
+        state = GetComponent<Animator>().GetInteger("state");
+        Debug.Log(state);
         if (!isFlipped) {
             swordReverse.SetActive(false);
             sword.SetActive(true);
             swordAnim1.SetInteger("state", state);
             if (Input.GetKeyDown(KeyCode.Mouse0)) {
-
+                swordAnim1.SetInteger("state", 4);
             }
+       
+
         } else if (isFlipped) {
             swordReverse.SetActive(true);
             sword.SetActive(false);
             swordAnim2.SetInteger("state", state);
             if (Input.GetKeyDown(KeyCode.Mouse0)) {
-                swordAnim2.SetInteger("state", 3);
-
+                swordAnim2.SetInteger("state", 4);
             }
+            
         }
 
        
