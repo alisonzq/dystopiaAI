@@ -6,39 +6,23 @@ using UnityEngine.SceneManagement;
 public class startMenu : MonoBehaviour
 {
 
-    private string lastLoadedScene;
-    public GameObject[] inventoryBox;
-    private int inventoryBoxLength;
+    public GameObject mainMenuPage0;
+    public GameObject player;
 
 
     private void start() {
-        lastLoadedScene = PlayerPrefs.GetString("LastLoadedScene");
-        inventoryBoxLength = inventoryBox.Length;
     }
 
     // Start is called before the first frame update
     public void MainMenu()
     {
-        for (int p = 0; p < inventoryBoxLength; p++) {
+        player.GetComponent<InventoryTristan>().menuClose = true;
 
-
-            inventoryBox[p].SetActive(false);
-            GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
-
-        }
-        SceneManager.LoadScene(0);
     }
 
-    public void Restart() {
-        for (int q = 0; q < inventoryBoxLength; q++) {
-
-
-            inventoryBox[q].SetActive(false);
-            GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
-
-        }
-        SceneManager.LoadScene(1);
-     
+    public void GoToCheckpoint() {
+        player.GetComponent<PlayerDeath>().askedRespawn = true;
+        player.GetComponent<InventoryTristan>().menuClose = true;
     }
 
 

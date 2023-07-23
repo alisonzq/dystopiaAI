@@ -21,15 +21,19 @@ public class CraftCode : MonoBehaviour
         for (int i = 0; i < materialCostLength; i++) {
             if (!(int.Parse(materialCostType[i].text) >= materialCost[i])) {
                 craftable = false;
-                Debug.Log("aaa");
+
             }
         }
         if (craftable) {
+            GetComponent<Animator>().SetTrigger("crafted");
             craftText.text = "" + (int.Parse(craftText.text) + 1);
-            Debug.Log("eeee");
+
             for (int j = 0; j < materialCostLength; j++) {
                 materialCostType[j].text = "" + (int.Parse(materialCostType[j].text) - materialCost[j]);
             }
+        }
+        else {
+            GetComponent<Animator>().SetTrigger("failed");
         }
 
         craftable = true;

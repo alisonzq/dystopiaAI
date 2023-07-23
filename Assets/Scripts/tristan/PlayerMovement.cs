@@ -10,14 +10,16 @@ public class PlayerMovement : MonoBehaviour {
 
     [SerializeField] private LayerMask jumpableGround;
     [SerializeField] private LayerMask Hazard;
-    public GameObject[] objectToKeep;
-    private int objectToKeepLength;
 
-    private float dirX = 0f;
+    public float dirX = 0f;
     [SerializeField] private float moveSpeed = 7f;
     [SerializeField] private float jumpForce = 14f;
     [SerializeField] private float gravity = 14f;
     [SerializeField] private float longJump = 14f;
+
+    public bool isGrounded = true;
+
+    public bool flipped = false;
 
     private enum MovementState { idle, running, jumping, falling, dead, idleInvincible, runningInvincible, jumpingInvincible, fallingInvincible}
 
@@ -29,12 +31,9 @@ public class PlayerMovement : MonoBehaviour {
         coll = GetComponent<BoxCollider2D>();
         sprite = GetComponent<SpriteRenderer>();
         anim = GetComponent<Animator>();
-        objectToKeepLength = objectToKeep.Length;
-
+    
         anim.SetTrigger("respawn");
-        for (int aa = 0; aa < objectToKeepLength; aa++) {
-            DontDestroyOnLoad(objectToKeep[aa]);
-        }
+
 
     }
 
@@ -42,6 +41,8 @@ public class PlayerMovement : MonoBehaviour {
     private void Update() {
         dirX = Input.GetAxisRaw("Horizontal");
         rb.velocity = new Vector2(dirX * moveSpeed, rb.velocity.y);
+
+        isGrounded = IsGrounded();
 
         if (Input.GetButtonDown("Jump") && IsGrounded()) {
             jumpSoundEffect.Play();
@@ -62,9 +63,11 @@ public class PlayerMovement : MonoBehaviour {
             if (dirX > 0f) {
                 state = MovementState.running;
                 sprite.flipX = false;
+                flipped = false;
             } else if (dirX < 0f) {
                 state = MovementState.running;
                 sprite.flipX = true;
+                flipped = true;
             } else {
                 state = MovementState.idle;
             }

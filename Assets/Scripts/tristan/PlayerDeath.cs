@@ -38,6 +38,8 @@ public class PlayerDeath : MonoBehaviour {
 
     private string lastLoadedScene;
 
+    public bool askedRespawn = false;
+
     // Start is called before the first frame update
     private void Start() {
         anim = GetComponent<Animator>();
@@ -46,6 +48,7 @@ public class PlayerDeath : MonoBehaviour {
         life = maxLife;
         lifeBarMaxWidth = lifeBar.GetComponent<RectTransform>().rect.width;
         lifeBarMaxScale = lifeBar.transform.localScale.x;
+        lifeBar.SetActive(true);
     }
 
     //Triggers
@@ -108,10 +111,17 @@ public class PlayerDeath : MonoBehaviour {
         anim.SetTrigger("death");
         rb.bodyType = RigidbodyType2D.Static;
         deathSoundEffect.Play();
+        lifeBar.SetActive(false);
         StartCoroutine(DeathScreen());
     }
 
     private void Update() {
+
+        if (askedRespawn) {
+            StartCoroutine(Respawn());
+            askedRespawn = false;
+        }
+
         //eating consumables
         if (Input.GetKeyDown(KeyCode.H)) {
             for (int consumablesIndex = 0; consumablesIndex < consumablesLength+1; consumablesIndex++) {
@@ -206,6 +216,7 @@ public class PlayerDeath : MonoBehaviour {
 
     yield return new WaitForSeconds(1f);
         SceneManager.LoadScene(3);
+        lifeBar.SetActive(true);
 
     }
 
