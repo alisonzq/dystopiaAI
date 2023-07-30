@@ -14,6 +14,7 @@ public class SwordMovement : MonoBehaviour {
     public GameObject swordReverse;
     private int state;
     private bool isFlipped;
+    private bool isGrounded;
 
   
 
@@ -32,29 +33,51 @@ public class SwordMovement : MonoBehaviour {
     private void Update() {
 
         isFlipped = GetComponent<PlayerMovement>().flipped;
+        isGrounded = GetComponent<PlayerMovement>().isGrounded;
 
         state = GetComponent<Animator>().GetInteger("state");
-        Debug.Log(state);
         if (!isFlipped) {
             swordReverse.SetActive(false);
             sword.SetActive(true);
             swordAnim1.SetInteger("state", state);
-            if (Input.GetKeyDown(KeyCode.Mouse0)) {
-                swordAnim1.SetInteger("state", 4);
-            }
        
 
         } else if (isFlipped) {
             swordReverse.SetActive(true);
             sword.SetActive(false);
             swordAnim2.SetInteger("state", state);
-            if (Input.GetKeyDown(KeyCode.Mouse0)) {
-                swordAnim2.SetInteger("state", 4);
-            }
+           
             
         }
-
+        
        
+
+        if (Input.GetKeyDown(KeyCode.Mouse0)) {
+            Vector3 mousePos = Input.mousePosition;
+            {
+                Debug.Log(mousePos.x);
+                Debug.Log(mousePos.y);
+            }
+            if ((!isFlipped && mousePos.x > transform.position.x + 900) || ( isFlipped && mousePos.x < transform.position.x + 800 )) {
+                swordAnim1.SetInteger("state", 4);
+                swordAnim2.SetInteger("state", 4);
+            } else if (mousePos.y > transform.position.y + 600) {
+                swordAnim1.SetInteger("state", 5);
+                swordAnim2.SetInteger("state", 5);
+            } else if (mousePos.y < transform.position.y + 400 && !isGrounded) {
+                swordAnim1.SetInteger("state", 6);
+                swordAnim2.SetInteger("state", 6);
+
+
+            } 
+
+
+         
+            //y: >600 <400
+            //x: >900 <800
+         
+        }
+
 
     }
 
